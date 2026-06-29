@@ -21,7 +21,7 @@ const client = new Client({
 
 startHealthServer(port);
 
-client.once("ready", () => {
+client.once("clientReady", () => {
   console.log(`Logged in as ${client.user.tag}`);
   if (discordPrefixEnabled) {
     console.log(`Prefix commands enabled with prefix "${discordPrefix}"`);
