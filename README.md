@@ -43,6 +43,7 @@ FORTNITE_API_KEY=...
 ```
 
 `DISCORD_GUILD_ID` is optional, but useful during development because guild commands update almost instantly.
+If Discord returns `Missing Access` while registering commands, confirm the bot was invited to that exact server and that `DISCORD_APPLICATION_ID` belongs to the same application as `DISCORD_BOT_TOKEN`.
 `FORTNITE_API_KEY` is only required for `/stats`; `/shop` and `/news` work without it.
 
 ## Run It

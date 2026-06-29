@@ -191,8 +191,26 @@ async function buildStatsEmbed({ name, platform }) {
 }
 
 async function main() {
-  await registerCommands();
+  try {
+    await registerCommands();
+  } catch (error) {
+    console.warn("Slash command registration failed. The bot will still start.");
+    console.warn(getCommandRegistrationHint(error));
+  }
+
   await client.login(discordBotToken);
+}
+
+function getCommandRegistrationHint(error) {
+  if (error?.code === 50001) {
+    return [
+      "Discord returned Missing Access while registering guild commands.",
+      "Check that DISCORD_GUILD_ID is the server where this bot is installed,",
+      "and that DISCORD_APPLICATION_ID and DISCORD_BOT_TOKEN belong to the same Discord application.",
+    ].join(" ");
+  }
+
+  return error?.message || String(error);
 }
 
 main().catch((error) => {
