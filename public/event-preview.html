@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Preview</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .event-preview {
+            text-align: center;
+            padding: 40px;
+        }
+        .event-title {
+            font-size: 3rem;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+        .countdown-display {
+            font-size: 4rem;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+            margin: 20px 0;
+        }
+        .countdown-label {
+            font-size: 1.5rem;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="event-preview">
+        <h1 class="event-title">Next Reset</h1>
+        <div class="countdown-label">Time Remaining:</div>
+        <div id="countdownDisplay" class="countdown-display">00:00:00:00</div>
+    </div>
+    <script src="/countdown.js"></script>
+</body>
+</html>
