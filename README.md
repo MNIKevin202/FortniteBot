@@ -37,8 +37,9 @@ DISCORD_PREFIX=!
 DISCORD_PREFIX_ENABLED=false
 DISCORD_RESET_COMMANDS_ON_START=false
 EPIC_AUTH_ENCRYPTION_KEY=...
+EPIC_CLIENT_ID=...
 EPIC_OAUTH_BASIC_TOKEN=...
-EPIC_LOGIN_URL=https://www.epicgames.com/id/api/redirect?clientId=3446cd72694c4a4485d81b77adbb2141&responseType=code
+EPIC_LOGIN_URL=
 EPIC_REDIRECT_URI=
 mongoDB_URI=...
 admin_role_ID=...
@@ -103,8 +104,9 @@ DISCORD_PREFIX=!
 DISCORD_PREFIX_ENABLED=false
 DISCORD_RESET_COMMANDS_ON_START=false
 EPIC_AUTH_ENCRYPTION_KEY=
+EPIC_CLIENT_ID=
 EPIC_OAUTH_BASIC_TOKEN=
-EPIC_LOGIN_URL=https://www.epicgames.com/id/api/redirect?clientId=3446cd72694c4a4485d81b77adbb2141&responseType=code
+EPIC_LOGIN_URL=
 EPIC_REDIRECT_URI=
 mongoDB_URI=
 admin_role_ID=
@@ -132,6 +134,9 @@ Generate `EPIC_AUTH_ENCRYPTION_KEY` with:
 ```bash
 openssl rand -base64 32
 ```
+
+`EPIC_CLIENT_ID` must be the same client used to create `EPIC_OAUTH_BASIC_TOKEN`.
+Leave `EPIC_LOGIN_URL` blank unless you need to override the generated Epic login URL.
 
 To clear and re-register slash commands from CapRover:
 

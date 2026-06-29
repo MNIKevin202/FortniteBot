@@ -1,4 +1,4 @@
-const { epicLoginUrl, epicOAuthBasicToken, epicRedirectUri } = require("./config");
+const { epicClientId, epicLoginUrl, epicOAuthBasicToken, epicRedirectUri } = require("./config");
 
 const ACCOUNT_BASE_URL = "https://account-public-service-prod.ol.epicgames.com";
 const FORTNITE_MCP_BASE_URL = "https://fngw-mcp-gc-livefn.ol.epicgames.com";
@@ -12,7 +12,17 @@ class EpicApiError extends Error {
 }
 
 function getEpicLoginUrl() {
-  return epicLoginUrl;
+  if (epicLoginUrl) return epicLoginUrl;
+
+  const clientId = epicClientId || getClientIdFromBasicToken();
+  if (!clientId) {
+    throw new EpicApiError("EPIC_CLIENT_ID or EPIC_LOGIN_URL is required for /login.", 500);
+  }
+
+  const url = new URL("https://www.epicgames.com/id/api/redirect");
+  url.searchParams.set("clientId", clientId);
+  url.searchParams.set("responseType", "code");
+  return url.toString();
 }
 
 async function exchangeCodeForDeviceAuth(code) {
@@ -136,7 +146,10 @@ async function requestOAuthToken(params) {
 
   const body = await response.json().catch(() => null);
   if (!response.ok) {
-    const message = body?.errorMessage || body?.message || `Epic OAuth returned ${response.status}`;
+    let message = body?.errorMessage || body?.message || `Epic OAuth returned ${response.status}`;
+    if (/not issued for your client/i.test(message)) {
+      message = `${message} Check that EPIC_CLIENT_ID, EPIC_LOGIN_URL, and EPIC_OAUTH_BASIC_TOKEN all use the same Epic OAuth client.`;
+    }
     throw new EpicApiError(message, response.status);
   }
 
@@ -149,6 +162,21 @@ function getBasicAuthorizationHeader() {
   }
 
   return `Basic ${epicOAuthBasicToken}`;
+}
+
+function getClientIdFromBasicToken() {
+  if (!epicOAuthBasicToken) return "";
+
+  const rawToken = epicOAuthBasicToken.toLowerCase().startsWith("basic ")
+    ? epicOAuthBasicToken.slice(6).trim()
+    : epicOAuthBasicToken.trim();
+
+  try {
+    const decoded = Buffer.from(rawToken, "base64").toString("utf8");
+    return decoded.split(":")[0] || "";
+  } catch {
+    return "";
+  }
 }
 
 async function createDeviceAuth(accountId, accessToken) {
