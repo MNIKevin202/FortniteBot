@@ -6,6 +6,7 @@
   "scripts": {
     "register": "node src/register-commands.js",
     "unregister": "node src/unregister-commands.js",
+    "unregister:all": "node src/unregister-all-commands.js",
     "refresh-commands": "node src/refresh-commands.js",
     "start": "node src/index.js"
   },

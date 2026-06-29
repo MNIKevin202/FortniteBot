@@ -70,6 +70,8 @@ To clear and re-register slash commands manually:
 npm run refresh-commands
 ```
 
+That clears both global commands and guild commands, then registers the current commands to `DISCORD_GUILD_ID` when it is set.
+
 ## CapRover
 
 This repo includes:
@@ -108,7 +110,7 @@ To clear and re-register slash commands from CapRover:
 
 1. Set `DISCORD_RESET_COMMANDS_ON_START=true`.
 2. Redeploy or restart the app.
-3. Confirm the logs show commands were unregistered and registered again.
+3. Confirm the logs show global commands and guild commands were cleared, then 3 commands were registered.
 4. Set `DISCORD_RESET_COMMANDS_ON_START=false`.
 5. Redeploy or restart again.
 
