@@ -36,6 +36,9 @@ DISCORD_GUILD_ID=...
 DISCORD_PREFIX=!
 DISCORD_PREFIX_ENABLED=false
 DISCORD_RESET_COMMANDS_ON_START=false
+EPIC_AUTH_ENCRYPTION_KEY=...
+EPIC_OAUTH_BASIC_TOKEN=...
+EPIC_LOGIN_URL=https://www.epicgames.com/id/api/redirect?clientId=3446cd72694c4a4485d81b77adbb2141&responseType=code
 mongoDB_URI=...
 admin_role_ID=...
 mod_role_ID=...
@@ -46,6 +49,7 @@ FORTNITE_API_KEY=...
 `DISCORD_GUILD_ID` is optional, but useful during development because guild commands update almost instantly.
 If Discord returns `Missing Access` while registering commands, confirm the bot was invited to that exact server and that `DISCORD_APPLICATION_ID` belongs to the same application as `DISCORD_BOT_TOKEN`.
 `FORTNITE_API_KEY` is only required for `/stats`; `/shop` and `/news` work without it.
+`EPIC_AUTH_ENCRYPTION_KEY`, `EPIC_OAUTH_BASIC_TOKEN`, and `mongoDB_URI` are required for `/login`, `/epic-code`, and `/sprite-debug`.
 
 ## Run It
 
@@ -97,6 +101,9 @@ DISCORD_GUILD_ID=
 DISCORD_PREFIX=!
 DISCORD_PREFIX_ENABLED=false
 DISCORD_RESET_COMMANDS_ON_START=false
+EPIC_AUTH_ENCRYPTION_KEY=
+EPIC_OAUTH_BASIC_TOKEN=
+EPIC_LOGIN_URL=https://www.epicgames.com/id/api/redirect?clientId=3446cd72694c4a4485d81b77adbb2141&responseType=code
 mongoDB_URI=
 admin_role_ID=
 mod_role_ID=
@@ -105,6 +112,24 @@ FORTNITE_API_KEY=
 ```
 
 The app responds at `/health` so CapRover has a normal HTTP process to route to.
+
+## Epic Login
+
+The bot supports a private Epic linking flow:
+
+1. Run `/login`.
+2. Open the Epic URL from the ephemeral response.
+3. Copy the returned authorization code.
+4. Run `/epic-code code:<code>`.
+5. Run `/sprite-debug` to scan your Fortnite `athena` profile for Sprite-looking data.
+
+The bot never asks for your Epic password. It stores Epic device auth in MongoDB so future profile checks can run without pasting a new code.
+
+Generate `EPIC_AUTH_ENCRYPTION_KEY` with:
+
+```bash
+openssl rand -base64 32
+```
 
 To clear and re-register slash commands from CapRover:
 

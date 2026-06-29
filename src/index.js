@@ -10,6 +10,13 @@ const {
 const { getNews, getShop, getStats } = require("./fortniteApi");
 const { startHealthServer } = require("./healthServer");
 const { registerCommands } = require("./register-commands");
+const { getEpicAuth, saveEpicAuth } = require("./db");
+const {
+  exchangeCodeForDeviceAuth,
+  getEpicLoginUrl,
+  queryAthenaProfile,
+  summarizeSpriteCandidates,
+} = require("./epicApi");
 
 const intents = [GatewayIntentBits.Guilds];
 if (discordPrefixEnabled) {
@@ -47,11 +54,24 @@ client.on("interactionCreate", async (interaction) => {
       await handleStats(interaction);
       return;
     }
+
+    if (interaction.commandName === "login") {
+      await handleLogin(interaction);
+      return;
+    }
+
+    if (interaction.commandName === "epic-code") {
+      await handleEpicCode(interaction);
+      return;
+    }
+
+    if (interaction.commandName === "sprite-debug") {
+      await handleSpriteDebug(interaction);
+      return;
+    }
   } catch (error) {
     console.error(error);
-    const message = error.status === 401
-      ? error.message
-      : "I could not fetch that Fortnite data right now.";
+    const message = getUserFacingErrorMessage(error);
 
     if (interaction.deferred || interaction.replied) {
       await interaction.editReply(message);
@@ -60,6 +80,14 @@ client.on("interactionCreate", async (interaction) => {
     }
   }
 });
+
+function getUserFacingErrorMessage(error) {
+  if (error.name === "EpicApiError") return error.message;
+  if (error.message?.startsWith("EPIC_")) return error.message;
+  if (error.message?.startsWith("mongoDB_URI")) return error.message;
+  if (error.status === 401) return error.message;
+  return "I could not fetch that Fortnite data right now.";
+}
 
 client.on("messageCreate", async (message) => {
   if (!discordPrefixEnabled || message.author.bot || !message.content.startsWith(discordPrefix)) {
@@ -104,6 +132,59 @@ client.on("messageCreate", async (message) => {
 async function handleShop(interaction) {
   await interaction.deferReply();
   await interaction.editReply({ embeds: [await buildShopEmbed()] });
+}
+
+async function handleLogin(interaction) {
+  await interaction.reply({
+    ephemeral: true,
+    content: [
+      "Open this Epic login/code page, sign in with Epic, then copy the authorization code it returns:",
+      getEpicLoginUrl(),
+      "",
+      "Then run `/epic-code code:<the code>` here. The code is short-lived and the bot stores device auth in MongoDB, not your password.",
+    ].join("\n"),
+  });
+}
+
+async function handleEpicCode(interaction) {
+  await interaction.deferReply({ ephemeral: true });
+
+  const code = interaction.options.getString("code", true).trim();
+  const auth = await exchangeCodeForDeviceAuth(code);
+  await saveEpicAuth(interaction.user.id, auth);
+
+  await interaction.editReply([
+    `Linked Epic account: ${auth.displayName}`,
+    "Stored device auth in MongoDB for future Fortnite profile checks.",
+    "You can now run `/sprite-debug`.",
+  ].join("\n"));
+}
+
+async function handleSpriteDebug(interaction) {
+  await interaction.deferReply({ ephemeral: true });
+
+  const savedAuth = await getEpicAuth(interaction.user.id);
+  if (!savedAuth) {
+    await interaction.editReply("You have not linked an Epic account yet. Run `/login` first.");
+    return;
+  }
+
+  const profile = await queryAthenaProfile(savedAuth);
+  const summary = summarizeSpriteCandidates(profile);
+  const sampleLines = summary.sample.length
+    ? summary.sample.map((item, index) => `${index + 1}. ${item.templateId || "[no templateId]"}`).join("\n")
+    : "No profile items containing \"sprite\" were found.";
+
+  await interaction.editReply([
+    `Epic account: ${savedAuth.epicDisplayName || savedAuth.epicAccountId}`,
+    `Profile revision: ${summary.profileRevision ?? "unknown"}`,
+    `Athena profile items scanned: ${summary.totalItems}`,
+    `Sprite-looking items found: ${summary.spriteCandidateCount}`,
+    "",
+    sampleLines,
+    "",
+    summary.attributeKeys.length ? `Attribute keys: ${summary.attributeKeys.join(", ")}` : "No Sprite attribute keys found.",
+  ].join("\n").slice(0, 1900));
 }
 
 async function buildShopEmbed() {
