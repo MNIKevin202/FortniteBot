@@ -20,8 +20,8 @@ async function putCommands(commands, action) {
   const rest = new REST({ version: "10" }).setToken(discordBotToken);
   const { route, label } = getCommandsRoute();
 
-  await rest.put(route, { body: commands });
-  console.log(`${action} ${commands.length} commands for ${label}.`);
+  const updatedCommands = await rest.put(route, { body: commands });
+  console.log(`${action} commands for ${label}. Active command count: ${updatedCommands.length}.`);
 }
 
 async function unregisterCommands() {
@@ -31,9 +31,16 @@ async function unregisterCommands() {
 async function registerCommands({ reset = false } = {}) {
   if (reset) {
     await unregisterCommands();
+    await wait(1500);
   }
 
   await putCommands(commandsJson, "Registered");
+}
+
+function wait(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }
 
 if (require.main === module) {
