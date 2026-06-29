@@ -35,6 +35,7 @@ DISCORD_BOT_TOKEN=...
 DISCORD_GUILD_ID=...
 DISCORD_PREFIX=!
 DISCORD_PREFIX_ENABLED=false
+DISCORD_RESET_COMMANDS_ON_START=false
 mongoDB_URI=...
 admin_role_ID=...
 mod_role_ID=...
@@ -63,6 +64,12 @@ npm start
 When the terminal says `Logged in as ...`, try `/shop`, `/news`, or `/stats` in Discord.
 The bot also registers slash commands automatically on startup, which is useful for CapRover deploys.
 
+To clear and re-register slash commands manually:
+
+```bash
+npm run refresh-commands
+```
+
 ## CapRover
 
 This repo includes:
@@ -87,6 +94,7 @@ DISCORD_BOT_TOKEN=
 DISCORD_GUILD_ID=
 DISCORD_PREFIX=!
 DISCORD_PREFIX_ENABLED=false
+DISCORD_RESET_COMMANDS_ON_START=false
 mongoDB_URI=
 admin_role_ID=
 mod_role_ID=
@@ -95,6 +103,14 @@ FORTNITE_API_KEY=
 ```
 
 The app responds at `/health` so CapRover has a normal HTTP process to route to.
+
+To clear and re-register slash commands from CapRover:
+
+1. Set `DISCORD_RESET_COMMANDS_ON_START=true`.
+2. Redeploy or restart the app.
+3. Confirm the logs show commands were unregistered and registered again.
+4. Set `DISCORD_RESET_COMMANDS_ON_START=false`.
+5. Redeploy or restart again.
 
 ## Discord Redirect URI
 

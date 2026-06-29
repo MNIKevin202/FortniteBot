@@ -22,6 +22,7 @@ module.exports = {
   discordGuildId: process.env.DISCORD_GUILD_ID || "",
   discordPrefix: process.env.DISCORD_PREFIX || "!",
   discordPrefixEnabled: envBool("DISCORD_PREFIX_ENABLED"),
+  discordResetCommandsOnStart: envBool("DISCORD_RESET_COMMANDS_ON_START"),
   fortniteApiKey: process.env.FORTNITE_API_KEY || "",
   mongoDbUri: process.env.mongoDB_URI || "",
   adminRoleId: process.env.admin_role_ID || "",

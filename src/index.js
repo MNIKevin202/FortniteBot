@@ -3,6 +3,7 @@ const {
   discordBotToken,
   discordPrefix,
   discordPrefixEnabled,
+  discordResetCommandsOnStart,
   fortniteApiKey,
   port,
 } = require("./config");
@@ -192,7 +193,7 @@ async function buildStatsEmbed({ name, platform }) {
 
 async function main() {
   try {
-    await registerCommands();
+    await registerCommands({ reset: discordResetCommandsOnStart });
   } catch (error) {
     console.warn("Slash command registration failed. The bot will still start.");
     console.warn(getCommandRegistrationHint(error));

@@ -2,23 +2,38 @@ const { REST, Routes } = require("discord.js");
 const { discordApplicationId, discordBotToken, discordGuildId } = require("./config");
 const { commandsJson } = require("./commands");
 
-async function registerCommands() {
-  const rest = new REST({ version: "10" }).setToken(discordBotToken);
-
+function getCommandsRoute() {
   if (discordGuildId) {
-    await rest.put(
-      Routes.applicationGuildCommands(discordApplicationId, discordGuildId),
-      { body: commandsJson },
-    );
-    console.log(`Registered ${commandsJson.length} commands for guild ${discordGuildId}.`);
-    return;
+    return {
+      route: Routes.applicationGuildCommands(discordApplicationId, discordGuildId),
+      label: `guild ${discordGuildId}`,
+    };
   }
 
-  await rest.put(
-    Routes.applicationCommands(discordApplicationId),
-    { body: commandsJson },
-  );
-  console.log(`Registered ${commandsJson.length} global commands.`);
+  return {
+    route: Routes.applicationCommands(discordApplicationId),
+    label: "global commands",
+  };
+}
+
+async function putCommands(commands, action) {
+  const rest = new REST({ version: "10" }).setToken(discordBotToken);
+  const { route, label } = getCommandsRoute();
+
+  await rest.put(route, { body: commands });
+  console.log(`${action} ${commands.length} commands for ${label}.`);
+}
+
+async function unregisterCommands() {
+  await putCommands([], "Unregistered");
+}
+
+async function registerCommands({ reset = false } = {}) {
+  if (reset) {
+    await unregisterCommands();
+  }
+
+  await putCommands(commandsJson, "Registered");
 }
 
 if (require.main === module) {
@@ -30,4 +45,5 @@ if (require.main === module) {
 
 module.exports = {
   registerCommands,
+  unregisterCommands,
 };
