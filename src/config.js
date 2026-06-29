@@ -26,6 +26,7 @@ module.exports = {
   epicAuthEncryptionKey: process.env.EPIC_AUTH_ENCRYPTION_KEY || "",
   epicOAuthBasicToken: process.env.EPIC_OAUTH_BASIC_TOKEN || "",
   epicLoginUrl: process.env.EPIC_LOGIN_URL || "https://www.epicgames.com/id/api/redirect?clientId=3446cd72694c4a4485d81b77adbb2141&responseType=code",
+  epicRedirectUri: process.env.EPIC_REDIRECT_URI || "",
   fortniteApiKey: process.env.FORTNITE_API_KEY || "",
   mongoDbUri: process.env.mongoDB_URI || "",
   adminRoleId: process.env.admin_role_ID || "",

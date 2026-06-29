@@ -1,4 +1,4 @@
-const { Client, EmbedBuilder, GatewayIntentBits } = require("discord.js");
+const { Client, EmbedBuilder, GatewayIntentBits, MessageFlags } = require("discord.js");
 const {
   discordBotToken,
   discordPrefix,
@@ -76,7 +76,7 @@ client.on("interactionCreate", async (interaction) => {
     if (interaction.deferred || interaction.replied) {
       await interaction.editReply(message);
     } else {
-      await interaction.reply({ content: message, ephemeral: true });
+      await interaction.reply({ content: message, flags: MessageFlags.Ephemeral });
     }
   }
 });
@@ -136,7 +136,7 @@ async function handleShop(interaction) {
 
 async function handleLogin(interaction) {
   await interaction.reply({
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
     content: [
       "Open this Epic login/code page, sign in with Epic, then copy the authorization code it returns:",
       getEpicLoginUrl(),
@@ -147,7 +147,7 @@ async function handleLogin(interaction) {
 }
 
 async function handleEpicCode(interaction) {
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
   const code = interaction.options.getString("code", true).trim();
   const auth = await exchangeCodeForDeviceAuth(code);
@@ -161,7 +161,7 @@ async function handleEpicCode(interaction) {
 }
 
 async function handleSpriteDebug(interaction) {
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
   const savedAuth = await getEpicAuth(interaction.user.id);
   if (!savedAuth) {

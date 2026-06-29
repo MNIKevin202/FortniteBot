@@ -1,4 +1,4 @@
-const { epicLoginUrl, epicOAuthBasicToken } = require("./config");
+const { epicLoginUrl, epicOAuthBasicToken, epicRedirectUri } = require("./config");
 
 const ACCOUNT_BASE_URL = "https://account-public-service-prod.ol.epicgames.com";
 const FORTNITE_MCP_BASE_URL = "https://fngw-mcp-gc-livefn.ol.epicgames.com";
@@ -16,6 +16,31 @@ function getEpicLoginUrl() {
 }
 
 async function exchangeCodeForDeviceAuth(code) {
+  const authorizationCodeParams = {
+    grant_type: "authorization_code",
+    code,
+  };
+
+  if (epicRedirectUri) {
+    authorizationCodeParams.redirect_uri = epicRedirectUri;
+  }
+
+  const loginToken = await requestOAuthToken(authorizationCodeParams);
+
+  try {
+    const deviceAuth = await createDeviceAuth(loginToken.account_id, loginToken.access_token);
+    return {
+      accountId: loginToken.account_id,
+      displayName: loginToken.displayName || loginToken.display_name || "Epic Account",
+      deviceId: deviceAuth.deviceId,
+      deviceSecret: deviceAuth.secret,
+    };
+  } finally {
+    await killAccessToken(loginToken.access_token).catch(() => {});
+  }
+}
+
+async function exchangeExchangeCodeForDeviceAuth(code) {
   const loginToken = await requestOAuthToken({
     grant_type: "exchange_code",
     exchange_code: code,
@@ -168,6 +193,7 @@ function redactAttributes(attributes) {
 
 module.exports = {
   EpicApiError,
+  exchangeExchangeCodeForDeviceAuth,
   exchangeCodeForDeviceAuth,
   getEpicLoginUrl,
   queryAthenaProfile,
