@@ -120,9 +120,9 @@ The app responds at `/health` so CapRover has a normal HTTP process to route to.
 The bot supports a private Epic linking flow:
 
 1. Run `/login`.
-2. Open the Epic URL from the ephemeral response.
+2. Click **Open Epic Login**.
 3. Copy the returned authorization code.
-4. Run `/epic-code code:<code>`.
+4. Click **Submit Auth Code** and paste the code into the private modal.
 5. Run `/sprite-debug` to scan your Fortnite `athena` profile for Sprite-looking data.
 
 The bot never asks for your Epic password. It stores Epic device auth in MongoDB so future profile checks can run without pasting a new code.

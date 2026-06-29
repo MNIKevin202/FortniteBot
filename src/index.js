@@ -1,4 +1,15 @@
-const { Client, EmbedBuilder, GatewayIntentBits, MessageFlags } = require("discord.js");
+const {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  Client,
+  EmbedBuilder,
+  GatewayIntentBits,
+  MessageFlags,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
+} = require("discord.js");
 const {
   discordBotToken,
   discordPrefix,
@@ -37,9 +48,19 @@ client.once("clientReady", () => {
 });
 
 client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isChatInputCommand()) return;
-
   try {
+    if (interaction.isButton()) {
+      await handleButton(interaction);
+      return;
+    }
+
+    if (interaction.isModalSubmit()) {
+      await handleModalSubmit(interaction);
+      return;
+    }
+
+    if (!interaction.isChatInputCommand()) return;
+
     if (interaction.commandName === "shop") {
       await handleShop(interaction);
       return;
@@ -135,14 +156,40 @@ async function handleShop(interaction) {
 }
 
 async function handleLogin(interaction) {
+  const embed = new EmbedBuilder()
+    .setTitle("Link Your Epic Account")
+    .setDescription([
+      "Open Epic's login page, sign in, and copy the authorization code it gives you.",
+      "",
+      "Then use the submit button below to paste the code privately.",
+    ].join("\n"))
+    .setColor(0x5865f2)
+    .addFields(
+      {
+        name: "What gets stored",
+        value: "Encrypted Epic device auth in MongoDB. Never your Epic password.",
+      },
+      {
+        name: "Next step",
+        value: "After linking, run `/sprite-debug` to scan for Sprite data.",
+      },
+    );
+
+  const row = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setLabel("Open Epic Login")
+      .setStyle(ButtonStyle.Link)
+      .setURL(getEpicLoginUrl()),
+    new ButtonBuilder()
+      .setCustomId("epic-login-submit-code")
+      .setLabel("Submit Auth Code")
+      .setStyle(ButtonStyle.Primary),
+  );
+
   await interaction.reply({
     flags: MessageFlags.Ephemeral,
-    content: [
-      "Open this Epic login/code page, sign in with Epic, then copy the authorization code it returns:",
-      getEpicLoginUrl(),
-      "",
-      "Then run `/epic-code code:<the code>` here. The code is short-lived and the bot stores device auth in MongoDB, not your password.",
-    ].join("\n"),
+    embeds: [embed],
+    components: [row],
   });
 }
 
@@ -150,6 +197,36 @@ async function handleEpicCode(interaction) {
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
   const code = interaction.options.getString("code", true).trim();
+  await linkEpicAccount(interaction, code);
+}
+
+async function handleButton(interaction) {
+  if (interaction.customId !== "epic-login-submit-code") return;
+
+  const modal = new ModalBuilder()
+    .setCustomId("epic-login-code-modal")
+    .setTitle("Submit Epic Auth Code");
+
+  const codeInput = new TextInputBuilder()
+    .setCustomId("epic-auth-code")
+    .setLabel("Epic authorization code")
+    .setPlaceholder("Paste the code from Epic")
+    .setStyle(TextInputStyle.Short)
+    .setRequired(true);
+
+  modal.addComponents(new ActionRowBuilder().addComponents(codeInput));
+  await interaction.showModal(modal);
+}
+
+async function handleModalSubmit(interaction) {
+  if (interaction.customId !== "epic-login-code-modal") return;
+
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+  const code = interaction.fields.getTextInputValue("epic-auth-code").trim();
+  await linkEpicAccount(interaction, code);
+}
+
+async function linkEpicAccount(interaction, code) {
   const auth = await exchangeCodeForDeviceAuth(code);
   await saveEpicAuth(interaction.user.id, auth);
 
