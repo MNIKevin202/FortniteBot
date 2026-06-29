@@ -12,14 +12,23 @@ class EpicApiError extends Error {
 }
 
 function getEpicLoginUrl() {
-  if (epicLoginUrl) return epicLoginUrl;
-
   const clientId = epicClientId || getClientIdFromBasicToken();
-  if (!clientId) {
-    throw new EpicApiError("EPIC_CLIENT_ID or EPIC_LOGIN_URL is required for /login.", 500);
+  if (clientId) {
+    return buildEpicLoginUrl(clientId);
   }
 
-  const url = new URL("https://www.epicgames.com/id/api/redirect");
+  if (epicLoginUrl) return epicLoginUrl;
+
+  throw new EpicApiError("EPIC_CLIENT_ID or EPIC_LOGIN_URL is required for /login.", 500);
+}
+
+function buildEpicLoginUrl(clientId) {
+  const url = new URL(epicLoginUrl || "https://www.epicgames.com/id/api/redirect");
+  const configuredClientId = url.searchParams.get("clientId");
+  if (configuredClientId && configuredClientId !== clientId) {
+    console.warn("Ignoring EPIC_LOGIN_URL clientId because it does not match EPIC_CLIENT_ID/EPIC_OAUTH_BASIC_TOKEN.");
+  }
+
   url.searchParams.set("clientId", clientId);
   url.searchParams.set("responseType", "code");
   return url.toString();
