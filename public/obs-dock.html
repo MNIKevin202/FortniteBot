@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OBS Dock - Reset Countdown</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        body {
+            background: transparent;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            overflow: hidden;
+        }
+        .obs-dock {
+            text-align: center;
+        }
+        .countdown-label {
+            font-size: 1rem;
+            color: #aaa;
+            margin-bottom: 8px;
+        }
+        .countdown-display {
+            font-size: 2rem;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="obs-dock">
+        <div class="countdown-label">Next Reset:</div>
+        <div id="countdownDisplay" class="countdown-display">00:00:00:00</div>
+    </div>
+    <script src="/countdown.js"></script>
+</body>
+</html>
