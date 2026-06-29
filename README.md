@@ -95,6 +95,23 @@ FORTNITE_API_KEY=
 
 The app responds at `/health` so CapRover has a normal HTTP process to route to.
 
+## Discord Redirect URI
+
+After CapRover deploys the app, use this redirect URI in the Discord Developer Portal:
+
+```text
+https://YOUR-CAPROVER-APP-DOMAIN/auth/discord/callback
+```
+
+The app also accepts these aliases:
+
+```text
+https://YOUR-CAPROVER-APP-DOMAIN/oauth/discord/callback
+https://YOUR-CAPROVER-APP-DOMAIN/discord/callback
+```
+
+Use the exact HTTPS domain CapRover gives the app, then paste the full callback URL into **OAuth2 > Redirects** for the Discord application.
+
 ## Notes
 
 - Keep `.env` private. Never commit your Discord token or API key.
